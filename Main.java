@@ -57,7 +57,7 @@ public class Main{
         //  Rondas 
         int maxRondas = 10;
         for (int numeroDeRonda = 1; numeroDeRonda <= maxRondas; numeroDeRonda++) {
-            System.out.println("\n--------- RONDA " + numeroDeRonda + " ---------");
+            System.out.println("\n RONDA " + numeroDeRonda + );
             System.out.println(batalla.estadoPersonajes());
 
             // Mostrar enemigos con índice (0,1,2)
