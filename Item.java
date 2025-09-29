@@ -1,5 +1,5 @@
 public class Item{
-    private String nommbre;
+    private String nombre;
     private String tipo;
     private int ataque;
 
