@@ -1,0 +1,275 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class Batalla {
+
+    
+    private Guerrero guerrero;
+    private Explorador explorador;
+
+    // 3 enemigos por ronda 
+    private final ArrayList<Enemigo> enemigos = new ArrayList<>();
+
+    // Guardamos solo los últimos 3 mensajes
+    private final ArrayList<String> historial = new ArrayList<>();
+
+    private final Random rng = new Random();
+
+    //  Validar que haya 1 Guerrero y 1 Explorador por lo menos
+    public boolean validarJugadores(Guerrero g, Explorador e) {
+        if (g == null || e == null) return false;
+        this.guerrero = g;
+        this.explorador = e;
+        return true;
+    }
+
+    //  Crear exactamente 3 enemigos, tipos aleatorios, así es divertido
+    public void definirEnemigos() {
+        enemigos.clear();
+        String[] nombresBoss = {"Boss A", "Boss B", "Boss C", "Boss D"};
+        String[] nombresNorm = {"Goblin", "Orco", "Bandido", "Lobo"};
+
+        for (int i = 0; i < 3; i++) {
+            boolean tipoBoss = rng.nextBoolean();
+            if (tipoBoss) {
+                enemigos.add(new Boss(nombresBoss[rng.nextInt(nombresBoss.length)]));
+            } else {
+                enemigos.add(new EnemigoNormal(nombresNorm[rng.nextInt(nombresNorm.length)]));
+            }
+        }
+    }
+
+    //  Cargar ítems antes de pelear  
+    public List<String> elegirItemsBatalla(Jugador jugador, int[] opciones) {
+        ArrayList<String> mensajes = new ArrayList<>();
+        if (jugador == null || opciones == null) return mensajes;
+
+        for (int op : opciones) {
+            String r = jugador.opcion_menu_batalla(op);
+            mensajes.add(r);
+            guardarHistorial(r);
+        }
+        return mensajes;
+    }
+
+    // Vaciar inventarios cuando termine la batalla
+    public void limpiarInventarios() {
+        if (guerrero != null && guerrero.getItems() != null) guerrero.getItems().clear();
+        if (explorador != null && explorador.getItems() != null) explorador.getItems().clear();
+    }
+
+    //  Menú por turno del jugador 
+    // accion: "ATACAR", "USAR_ITEM", "PASAR"
+    public String menuBatalla(Jugador jugador, String accion, Integer indiceItem, Enemigo enemigoObjetivo) {
+        if (jugador == null || accion == null) return "";
+        String accionMayus = accion.trim().toUpperCase();
+        String mensaje;
+
+        if (accionMayus.equals("ATACAR")) {
+            if (enemigoObjetivo == null) {
+                mensaje = jugador.getNombre() + " no tiene enemigo objetivo.";
+            } else {
+                int dano = jugador.ataque();
+                enemigoObjetivo.restar_vida(dano);
+                mensaje = jugador.getNombre() + " atacó a " + enemigoObjetivo.getNombre()
+                        + " e infligió " + dano + " de daño.";
+            }
+        } else if (accionMayus.equals("USAR_ITEM")) {
+            if (indiceItem == null) {
+                mensaje = jugador.getNombre() + " intentó usar un ítem sin indicar cuál.";
+            } else {
+                mensaje = jugador.uso_item(indiceItem, enemigoObjetivo); // consume el ítem
+            }
+        } else { // pasar o algo más
+            mensaje = jugador.pasarTurno();
+        }
+
+        guardarHistorial(mensaje);
+        return mensaje;
+    }
+
+    // Ejecuta ronsa en orden
+    // Orden: J1 vs E1, luego E1;  J2 vs E2, luego E2;  J1 vs E3, luego E3.
+    // Pasa la acción de cada paso y el índice del enemigo objetivo (0,1,2).
+    public List<String> ejecutarRondaSimple(
+            String accionJ1_A, Integer itemJ1_A, int idxE1,
+            String accionJ2_B, Integer itemJ2_B, int idxE2,
+            String accionJ1_C, Integer itemJ1_C, int idxE3) {
+
+        ArrayList<String> mensajes = new ArrayList<>();
+
+        if (!estadoListo()) {
+            String s = "Batalla no preparada (faltan jugadores o enemigos).";
+            mensajes.add(s); guardarHistorial(s);
+            return mensajes;
+        }
+
+        Enemigo e1 = enemigoVivo(idxE1);
+        Enemigo e2 = enemigoVivo(idxE2);
+        Enemigo e3 = enemigoVivo(idxE3);
+
+        // J1 a E1
+        String a1 = menuBatalla(guerrero, accionJ1_A, itemJ1_A, e1);
+        mensajes.add(estadoTurno(guerrero.getNombre(), a1));
+        if (termino(mensajes)) return mensajes;
+        if (e1 != null) {
+            mensajes.addAll(turnoEnemigo(e1, guerrero));
+            if (termino(mensajes)) return mensajes;
+        }
+
+        // J2 a E2
+        String a2 = menuBatalla(explorador, accionJ2_B, itemJ2_B, e2);
+        mensajes.add(estadoTurno(explorador.getNombre(), a2));
+        if (termino(mensajes)) return mensajes;
+        if (e2 != null) {
+            mensajes.addAll(turnoEnemigo(e2, explorador));
+            if (termino(mensajes)) return mensajes;
+        }
+
+        // J1 a E3
+        String a3 = menuBatalla(guerrero, accionJ1_C, itemJ1_C, e3);
+        mensajes.add(estadoTurno(guerrero.getNombre(), a3));
+        if (termino(mensajes)) return mensajes;
+        if (e3 != null) {
+            mensajes.addAll(turnoEnemigo(e3, guerrero));
+        }
+
+        return mensajes;
+    }
+
+    //  Estado de turno y de personajes 
+    public String estadoTurno(String quien, String quePaso) {
+        String s = "[Turno de " + quien + "] " + quePaso;
+        guardarHistorial(s);
+        return s;
+    }
+
+    public String estadoPersonajes() {
+    String s = "[Estado] ";
+
+    if (guerrero != null) {
+        s = s + "Guerrero(Puntos de vida =" + guerrero.getPuntosVida()
+            + ", Ataque =" + guerrero.getPoderAtaque() + ") ";
+    }
+    if (explorador != null) {
+        s = s + "Explorador(Puntos de vida=" + explorador.getPuntosVida()
+            + ", Ataque =" + explorador.getPoderAtaque() + ") ";
+    }
+
+    s = s + "| Enemigos: ";
+    for (int i = 0; i < enemigos.size(); i++) {
+        Enemigo en = enemigos.get(i);
+        s = s + "#" + i + ":" + en.getNombre()
+            + "(PV=" + en.getPuntos_vida()
+            + ", Boss=" + en.esBoss() + ") ";
+    }
+
+    guardarHistorial(s);
+    return s;
+}
+
+    //  especial(): para activar la habilidad de un enemigo concreto 
+    public String activarHabilidad(Enemigo e) {
+        if (e == null) return "";
+        String m = e.activar_Habilidad();   // cada enemigo define qué hace
+        guardarHistorial(m);
+        return m;
+    }
+
+    
+    public ArrayList<Enemigo> getEnemigos() { 
+        return enemigos; 
+        }
+    public Guerrero getGuerrero() { 
+        return guerrero; 
+        }
+    public Explorador getExplorador() { 
+        return explorador; 
+        }
+    public List<String> getHistorial() { 
+        return new ArrayList<>(historial); 
+    }
+
+    
+    private void guardarHistorial(String s) {
+        if (s == null || s.isEmpty()) return;
+        historial.add(s);
+        // mantener solo los últimos 3 mensajes
+        while (historial.size() > 3) {
+            historial.remove(0);
+        }
+    }
+
+    private boolean estadoListo() {
+        return guerrero != null && explorador != null && enemigos.size() == 3;
+    }
+
+    private Enemigo enemigoVivo(int idx) {
+        if (idx < 0 || idx >= enemigos.size()) return null;
+        Enemigo e = enemigos.get(idx);
+        if (e.getPuntos_vida() <= 0) return null;
+        return e;
+    }
+
+    private boolean todosEnemigosMuertos() {
+        for (Enemigo e : enemigos) {
+            if (e.getPuntos_vida() > 0) return false;
+        }
+        return true;
+    }
+
+    private boolean hayJugadoresVivos() {
+        boolean gVivo = guerrero != null && guerrero.getPuntosVida() > 0;
+        boolean eVivo = explorador != null && explorador.getPuntosVida() > 0;
+        return gVivo || eVivo; // sigue si al menos uno vive
+    }
+
+    private boolean termino(ArrayList<String> mensajes) {
+        if (todosEnemigosMuertos()) {
+            String s = "¡Victoria! Todos los enemigos han caído.";
+            mensajes.add(s); guardarHistorial(s);
+            limpiarInventarios();
+            return true;
+        }
+        if (!hayJugadoresVivos()) {
+            String s = "Derrota… los jugadores han caído.";
+            mensajes.add(s); guardarHistorial(s);
+            limpiarInventarios();
+            return true;
+        }
+        return false;
+    }
+
+    // Turno del enemigo contra un jugador concreto 
+    private List<String> turnoEnemigo(Enemigo e, Jugador j) {
+        ArrayList<String> ms = new ArrayList<>();
+        if (e == null || e.getPuntos_vida() <= 0) {
+            String s = "El enemigo no puede actuar.";
+            ms.add(s); guardarHistorial(s);
+            return ms;
+        }
+
+        String h = activarHabilidad(e);
+        if (h != null && !h.isEmpty()) {
+            ms.add(estadoTurno(e.getNombre(), h));
+        }
+
+        String a = e.atacar(j);
+        ms.add(estadoTurno(e.getNombre(), a));
+
+        // Si es Boss y tiene turno extra, que pase de una vez
+        if (e instanceof Boss) {
+            Boss b = (Boss) e;
+            if (b.tieneTurnoExtra() && j != null && j.getPuntosVida() > 0) {
+                String h2 = activarHabilidad(b);
+                if (h2 != null && !h2.isEmpty()) {
+                    ms.add(estadoTurno(b.getNombre(), h2));
+                }
+                String a2 = b.atacar(j);
+                ms.add(estadoTurno(b.getNombre(), a2));
+            }
+        }
+        return ms;
+    }
+}
