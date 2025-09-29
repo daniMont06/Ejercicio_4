@@ -1,207 +1,127 @@
-import java.util.ArrayList; //Todo esto me costó mucho tiempo y ayuda pls sean lindos conmigo me costó mucho :D
+
+import java.util.ArrayList; //Esto me costó mucho, por fis tenganme piedad :DD
 import java.util.List;
 import java.util.Scanner;
 
 public class Main{
     public static void main(String[] args){
-        Scanner scanner = new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
 
-        System.out.println("=== Juego de Batalla! Tu y un amigo vs monstruos!\n");
+        System.out.println(" Juego de Batalla (dos jugadores vs consola) ===\n");
 
-        //  Nombres de jugadores
+        // Nombres
         System.out.print("Nombre del Guerrero: ");
-        String nombreGuerrero = scanner.nextLine();
+        Guerrero guerrero = new Guerrero(sc.nextLine());
         System.out.print("Nombre del Explorador: ");
-        String nombreExplorador = scanner.nextLine();
+        Explorador explorador = new Explorador(sc.nextLine());
 
-        Guerrero guerrero = new Guerrero(nombreGuerrero);
-        Explorador explorador = new Explorador(nombreExplorador);
-
-        //  Preparar batalla 
+        // Preparar batalla
         Batalla batalla = new Batalla();
-        boolean jugadoresValidos = batalla.validarJugadores(guerrero, explorador);
-        if (!jugadoresValidos) {
+        if (!batalla.validarJugadores(guerrero, explorador)) {
             System.out.println("Error: faltan jugadores.");
-            scanner.close();
-            return;
+            sc.close(); return;
         }
-
         batalla.definirEnemigos();
-
-        // Intro especial con nombres de los tres enemigos para que sepan con quién pelean
-        ArrayList<Enemigo> enemigosIntro = batalla.getEnemigos();
-        String nombreE0 = enemigosIntro.get(0).getNombre();
-        String nombreE1 = enemigosIntro.get(1).getNombre();
-        String nombreE2 = enemigosIntro.get(2).getNombre();
-
+        ArrayList<Enemigo> enemigos = batalla.getEnemigos();
         System.out.println("\n¡Entraron " + guerrero.getNombre() + " el guerrero y "
-                + explorador.getNombre() + " el explorador! "
-                + "¡Oh no! ¡Han llegado " + nombreE0 + ", " + nombreE1 + " y " + nombreE2 + " a pelear!");
-
+                + explorador.getNombre() + " el explorador! ¡Oh no! ¡Han llegado "
+                + enemigos.get(0).getNombre() + ", " + enemigos.get(1).getNombre()
+                + " y " + enemigos.get(2).getNombre() + " a pelear!");
         System.out.println(batalla.estadoPersonajes());
 
-        //  Elegir ítems! Guerrero solo puede 2, Explorador solo 4
-        System.out.println("\n" + guerrero.getNombre() + ", puedes elegir hasta 2 ítems.");
-        System.out.println("Menú de ítems: 1) Curar  2) Fuerza  3) Veneno  4) Super Veneno");
-        int[] itemsSeleccionadosGuerrero = new int[2];
-        for (int i = 0; i < 2; i++) {
-            System.out.print("Elige ítem #" + (i+1) + " (1-4) o 0 para no agregar más: ");
-            int opcionItem = scanner.nextInt(); scanner.nextLine();
-            if (opcionItem == 0) { itemsSeleccionadosGuerrero = java.util.Arrays.copyOf(itemsSeleccionadosGuerrero, i); break; }
-            itemsSeleccionadosGuerrero[i] = opcionItem;
-        }
-        List<String> mensajesItemsGuerrero = batalla.elegirItemsBatalla(guerrero, itemsSeleccionadosGuerrero);
-        for (int i=0; i<mensajesItemsGuerrero.size(); i++) System.out.println("  " + mensajesItemsGuerrero.get(i));
+        // Elegir ítems 
+        System.out.println("\n" + guerrero.getNombre() + " elige hasta 2 ítems (1:Curar 2:Fuerza 3:Veneno 4:SuperVeneno, 0=fin):");
+        int[] gItems = new int[2];
+        for (int i=0;i<2;i++){ System.out.print("#"+(i+1)+": "); int op=sc.nextInt(); sc.nextLine(); if(op==0){gItems=java.util.Arrays.copyOf(gItems,i);break;} gItems[i]=op; }
+        for(String s: batalla.elegirItemsBatalla(guerrero,gItems)) System.out.println("  "+s);
 
-        System.out.println("\n" + explorador.getNombre() + ", puedes elegir hasta 4 ítems.");
-        System.out.println("Menú de ítems: 1) Curar  2) Fuerza  3) Veneno  4) Super Veneno");
-        int[] itemsSeleccionadosExplorador = new int[4];
-        for (int i = 0; i < 4; i++) {
-            System.out.print("Elige ítem #" + (i+1) + " (1-4) o 0 para no agregar más: ");
-            int opcionItem = scanner.nextInt(); scanner.nextLine();
-            if (opcionItem == 0) { itemsSeleccionadosExplorador = java.util.Arrays.copyOf(itemsSeleccionadosExplorador, i); break; }
-            itemsSeleccionadosExplorador[i] = opcionItem;
-        }
-        List<String> mensajesItemsExplorador = batalla.elegirItemsBatalla(explorador, itemsSeleccionadosExplorador);
-        for (int i=0; i<mensajesItemsExplorador.size(); i++) System.out.println("  " + mensajesItemsExplorador.get(i));
+        System.out.println("\n" + explorador.getNombre() + " elige hasta 4 ítems (1:Curar 2:Fuerza 3:Veneno 4:SuperVeneno, 0=fin):");
+        int[] eItems = new int[4];
+        for (int i=0;i<4;i++){ System.out.print("#"+(i+1)+": "); int op=sc.nextInt(); sc.nextLine(); if(op==0){eItems=java.util.Arrays.copyOf(eItems,i);break;} eItems[i]=op; }
+        for(String s: batalla.elegirItemsBatalla(explorador,eItems)) System.out.println("  "+s);
 
-        //  Rondas, hasta que mueras jejeje
-        int maxRondas = 10;
-        for (int numeroDeRonda = 1; numeroDeRonda <= maxRondas; numeroDeRonda++) {
-            System.out.println("\n--------- RONDA " + numeroDeRonda + " ---------");
+        //  Rondas 
+        int maxRondas = 8;
+        for (int ronda=1; ronda<=maxRondas; ronda++){
+            System.out.println("\n--------- RONDA " + ronda + " ---------");
             System.out.println(batalla.estadoPersonajes());
-
-            // Mostrar enemigos con índice (0,1,2)
             System.out.println("Enemigos:");
-            ArrayList<Enemigo> listaEnemigos = batalla.getEnemigos();
-            for (int i=0; i<listaEnemigos.size(); i++) {
-                Enemigo enemigo = listaEnemigos.get(i);
-                System.out.println("  " + i + ": " + enemigo.getNombre() + " (PV=" + enemigo.getPuntos_vida() + ", Boss=" + enemigo.esBoss() + ")");
+            for(int i=0;i<enemigos.size();i++){
+                Enemigo en = enemigos.get(i);
+                System.out.println("  " + i + ": " + en.getNombre() + " (PV=" + en.getPuntos_vida() + ", Boss=" + en.esBoss() + ")");
             }
 
-            //  J1 (Guerrero) contra el primer enemigo
-            System.out.println("\nTurno de " + guerrero.getNombre() + " (1=Atacar, 2=Usar ítem, 3=Pasar)");
-            int opcionAccionA = scanner.nextInt(); scanner.nextLine();
-            String accionGuerreroPasoA = (opcionAccionA==1) ? "ATACAR" : (opcionAccionA==2) ? "USAR_ITEM" : "PASAR";
-            Integer indiceItemGuerreroPasoA = null;
-            int indiceEnemigoPasoA = 0;
-            if (accionGuerreroPasoA.equals("ATACAR")) {
-                System.out.print("Elige enemigo (0-2): ");
-                indiceEnemigoPasoA = scanner.nextInt(); scanner.nextLine();
-                String nombreEnemigoA = (indiceEnemigoPasoA>=0 && indiceEnemigoPasoA<listaEnemigos.size())
-                        ? listaEnemigos.get(indiceEnemigoPasoA).getNombre() : "enemigo";
-                System.out.println("Atacaste a " + nombreEnemigoA + "! Ahora es turno del enemigo!");
-            } else if (accionGuerreroPasoA.equals("USAR_ITEM")) {
-                System.out.println("1) En mí (Curar/Fuerza)  2) Enemigo (Veneno/Super)");
-                int objetivoItem = scanner.nextInt(); scanner.nextLine();
-                System.out.print("Índice del ítem en tu inventario (0..): ");
-                indiceItemGuerreroPasoA = scanner.nextInt(); scanner.nextLine();
-                if (objetivoItem == 1) {
-                    System.out.println("Usaste un ítem en ti. ¡Ahora es turno del enemigo!");
-                } else {
+            // secuencia a usar
+            Jugador[] actores = new Jugador[]{guerrero, explorador, guerrero};
+            int[] idxEnemigoPorPaso = new int[]{0,1,2};
+
+            for (int paso=0; paso<3; paso++){
+                Jugador actor = actores[paso];
+                int idxDefault = idxEnemigoPorPaso[paso];
+
+                // acción del jugador
+                System.out.println("\nTurno de " + actor.getNombre() + " (1=Atacar, 2=Usar ítem, 3=Pasar)");
+                int op = sc.nextInt(); sc.nextLine();
+                String accion = (op==1)?"ATACAR":(op==2)?"USAR_ITEM":"PASAR";
+                Integer idxItem = null;
+                int idxEnemigo = idxDefault;
+                Enemigo enemigoObjetivo = null;
+
+                if ("ATACAR".equals(accion)) {
                     System.out.print("Elige enemigo (0-2): ");
-                    indiceEnemigoPasoA = scanner.nextInt(); scanner.nextLine();
-                    String nombreEnemigoA = (indiceEnemigoPasoA>=0 && indiceEnemigoPasoA<listaEnemigos.size())
-                            ? listaEnemigos.get(indiceEnemigoPasoA).getNombre() : "enemigo";
-                    System.out.println("Usaste un ítem contra " + nombreEnemigoA + "! Ahora es turno del enemigo!");
-                }
-            } else {
-                System.out.println("Decidiste pasar. ¡Ahora es turno del enemigo!");
-            }
-
-            //  J2 (Explorador) contra el segundo enemigo
-            System.out.println("\nTurno de " + explorador.getNombre() + " (1=Atacar, 2=Usar ítem, 3=Pasar)");
-            int opcionAccionB = scanner.nextInt(); scanner.nextLine();
-            String accionExploradorPasoB = (opcionAccionB==1) ? "ATACAR" : (opcionAccionB==2) ? "USAR_ITEM" : "PASAR";
-            Integer indiceItemExploradorPasoB = null;
-            int indiceEnemigoPasoB = 1;
-            if (accionExploradorPasoB.equals("ATACAR")) {
-                System.out.print("Elige enemigo (0-2): ");
-                indiceEnemigoPasoB = scanner.nextInt(); scanner.nextLine();
-                String nombreEnemigoB = (indiceEnemigoPasoB>=0 && indiceEnemigoPasoB<listaEnemigos.size())
-                        ? listaEnemigos.get(indiceEnemigoPasoB).getNombre() : "enemigo";
-                System.out.println("Atacaste a " + nombreEnemigoB + "! Ahora es turno del enemigo!");
-            } else if (accionExploradorPasoB.equals("USAR_ITEM")) {
-                System.out.println("1) En mí (Curar/Fuerza)  2) Enemigo (Veneno/Super)");
-                int objetivoItem = scanner.nextInt(); scanner.nextLine();
-                System.out.print("Índice del ítem en tu inventario (0..): ");
-                indiceItemExploradorPasoB = scanner.nextInt(); scanner.nextLine();
-                if (objetivoItem == 1) {
-                    System.out.println("Usaste un ítem en ti. ¡Ahora es turno del enemigo!");
+                    idxEnemigo = sc.nextInt(); sc.nextLine();
+                    if (idxEnemigo>=0 && idxEnemigo<enemigos.size()) enemigoObjetivo = enemigos.get(idxEnemigo);
+                    System.out.println("Atacaste a " + (enemigoObjetivo!=null?enemigoObjetivo.getNombre():"enemigo") + "! Ahora es turno del enemigo!");
+                    System.out.println(batalla.menuBatalla(actor, "ATACAR", null, enemigoObjetivo));
+                } else if ("USAR_ITEM".equals(accion)) {
+                    System.out.println("¿A quién? 1) A mí  2) A enemigo");
+                    int tgt = sc.nextInt(); sc.nextLine();
+                    System.out.print("Índice del ítem (0..): ");
+                    idxItem = sc.nextInt(); sc.nextLine();
+                    if (tgt==2){
+                        System.out.print("Elige enemigo (0-2): ");
+                        idxEnemigo = sc.nextInt(); sc.nextLine();
+                        if (idxEnemigo>=0 && idxEnemigo<enemigos.size()) enemigoObjetivo = enemigos.get(idxEnemigo);
+                        System.out.println("Usaste un ítem contra " + (enemigoObjetivo!=null?enemigoObjetivo.getNombre():"enemigo") + "! Ahora es turno del enemigo!");
+                    } else {
+                        System.out.println("Usaste un ítem en ti. ¡Ahora es turno del enemigo!");
+                    }
+                    System.out.println(batalla.menuBatalla(actor, "USAR_ITEM", idxItem, enemigoObjetivo));
                 } else {
-                    System.out.print("Elige enemigo (0-2): ");
-                    indiceEnemigoPasoB = scanner.nextInt(); scanner.nextLine();
-                    String nombreEnemigoB = (indiceEnemigoPasoB>=0 && indiceEnemigoPasoB<listaEnemigos.size())
-                            ? listaEnemigos.get(indiceEnemigoPasoB).getNombre() : "enemigo";
-                    System.out.println("Usaste un ítem contra " + nombreEnemigoB + "! Ahora es turno del enemigo!");
+                    System.out.println("Decidiste pasar. ¡Ahora es turno del enemigo!");
+                    System.out.println(batalla.menuBatalla(actor, "PASAR", null, null));
                 }
-            } else {
-                System.out.println("Decidiste pasar. ¡Ahora es turno del enemigo!");
-            }
 
-            //  J1 (Guerrero) contra el tercer enemigo
-            System.out.println("\nTurno de " + guerrero.getNombre() + " (1=Atacar, 2=Usar ítem, 3=Pasar)");
-            int opcionAccionC = scanner.nextInt(); scanner.nextLine();
-            String accionGuerreroPasoC = (opcionAccionC==1) ? "ATACAR" : (opcionAccionC==2) ? "USAR_ITEM" : "PASAR";
-            Integer indiceItemGuerreroPasoC = null;
-            int indiceEnemigoPasoC = 2;
-            if (accionGuerreroPasoC.equals("ATACAR")) {
-                System.out.print("Elige enemigo (0-2): ");
-                indiceEnemigoPasoC = scanner.nextInt(); scanner.nextLine();
-                String nombreEnemigoC = (indiceEnemigoPasoC>=0 && indiceEnemigoPasoC<listaEnemigos.size())
-                        ? listaEnemigos.get(indiceEnemigoPasoC).getNombre() : "enemigo";
-                System.out.println("Atacaste a " + nombreEnemigoC + "! Ahora es turno del enemigo!");
-            } else if (accionGuerreroPasoC.equals("USAR_ITEM")) {
-                System.out.println("1) En mí (Curar/Fuerza)  2) Enemigo (Veneno/Super)");
-                int objetivoItem = scanner.nextInt(); scanner.nextLine();
-                System.out.print("Índice del ítem en tu inventario (0..): ");
-                indiceItemGuerreroPasoC = scanner.nextInt(); scanner.nextLine();
-                if (objetivoItem == 1) {
-                    System.out.println("Usaste un ítem en ti. ¡Ahora es turno del enemigo!");
-                } else {
-                    System.out.print("Elige enemigo (0-2): ");
-                    indiceEnemigoPasoC = scanner.nextInt(); scanner.nextLine();
-                    String nombreEnemigoC = (indiceEnemigoPasoC>=0 && indiceEnemigoPasoC<listaEnemigos.size())
-                            ? listaEnemigos.get(indiceEnemigoPasoC).getNombre() : "enemigo";
-                    System.out.println("Usaste un ítem contra " + nombreEnemigoC + "! Ahora es turno del enemigo!");
+                //  respuesta del enemigo mua jajaja
+                if (idxEnemigo>=0 && idxEnemigo<enemigos.size()){
+                    Enemigo enemigoTurno = enemigos.get(idxEnemigo);
+                    if (enemigoTurno.getPuntos_vida() > 0 && actor.getPuntosVida() > 0){
+                        String h = batalla.activarHabilidad(enemigoTurno);
+                        if (h!=null && !h.isEmpty()) System.out.println(h);
+                        System.out.println(enemigoTurno.atacar(actor));
+                        if (enemigoTurno instanceof Boss){
+                            Boss b = (Boss) enemigoTurno;
+                            if (b.tieneTurnoExtra() && actor.getPuntosVida() > 0){
+                                String h2 = batalla.activarHabilidad(b);
+                                if (h2!=null && !h2.isEmpty()) System.out.println(h2);
+                                System.out.println(b.atacar(actor));
+                            }
+                        }
+                    }
                 }
-            } else {
-                System.out.println("Decidiste pasar. ¡Ahora es turno del enemigo!");
-            }
 
-            // Ejecutar ronda en orden, esto me costó mucho tiempo :D en realidad todo me costó jajaja
-            List<String> mensajesDeRonda = batalla.ejecutarRondaSimple(
-                    accionGuerreroPasoA, indiceItemGuerreroPasoA, indiceEnemigoPasoA,
-                    accionExploradorPasoB, indiceItemExploradorPasoB, indiceEnemigoPasoB,
-                    accionGuerreroPasoC, indiceItemGuerreroPasoC, indiceEnemigoPasoC
-            );
+                //  estado tras la respuesta del enemigo 
+                System.out.println(batalla.estadoPersonajes());
 
-            // Mostrar lo que pasó, porque resulta que es aburrido si no explico qué pasa jajaja
-            for (int i=0; i<mensajesDeRonda.size(); i++) {
-                System.out.println(mensajesDeRonda.get(i));
-            }
-
-            // Comprobar fin 
-            boolean existenEnemigosVivos = false;
-            for (int i=0; i<batalla.getEnemigos().size(); i++) {
-                if (batalla.getEnemigos().get(i).getPuntos_vida() > 0) {
-                    existenEnemigosVivos = true;
-                }
-            }
-            boolean hayAlgunJugadorVivo = (guerrero.getPuntosVida() > 0) || (explorador.getPuntosVida() > 0);
-
-            if (!existenEnemigosVivos) {
-                System.out.println("¡Victoria! Todos los enemigos han caído.");
-                batalla.limpiarInventarios();
-                break;
-            }
-            if (!hayAlgunJugadorVivo) {
-                System.out.println("Derrota… los jugadores han caído.");
-                batalla.limpiarInventarios();
-                break;
+                // fin temprano si alguien muere
+                boolean enemigosVivos=false;
+                for (Enemigo e: enemigos) if (e.getPuntos_vida()>0) enemigosVivos=true;
+                boolean jugadoresVivos = guerrero.getPuntosVida()>0 || explorador.getPuntosVida()>0;
+                if (!enemigosVivos){ System.out.println("¡Victoria!"); batalla.limpiarInventarios(); sc.close(); return; }
+                if (!jugadoresVivos){ System.out.println("Derrota…"); batalla.limpiarInventarios(); sc.close(); return; }
             }
         }
 
-        scanner.close();
+        sc.close();
     }
 }
