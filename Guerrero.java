@@ -1,7 +1,8 @@
 import java.util.ArrayList;
 
-public class Guerrero extends Jugador{
-    public Guerrero(String nombre) { //Le cambie la vida, el ataque y pues el espacio de items.
+public class Guerrero extends Jugador {
+
+    public Guerrero(String nombre){
         super(nombre, 15, 5, new ArrayList<Item>());
     }
 
@@ -12,14 +13,14 @@ public class Guerrero extends Jugador{
 
     @Override
     public int ataque() {
-        return poder_ataque; // aquí vale 5 por el constructor
+        return poder_ataque;
     }
 
     @Override
-    protected boolean inventarioLleno() { //Solo 2 items
+    protected boolean inventarioLleno() {
         return item != null && item.size() >= 2;
     }
 
     @Override
-    public void turnoGuerrero() {}
+    public void turnoGuerrero() { }
 }
