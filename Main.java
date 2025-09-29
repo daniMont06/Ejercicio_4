@@ -7,7 +7,7 @@ public class Main{
     public static void main(String[] args){
         Scanner sc = new Scanner(System.in);
 
-        System.out.println(" Juego de Batalla (dos jugadores vs consola) ===\n");
+        System.out.println(" Juego de Batalla! Pelea con monstruos!\n");
 
         // Nombres
         System.out.print("Nombre del Guerrero: ");
@@ -43,7 +43,7 @@ public class Main{
         //  Rondas 
         int maxRondas = 8;
         for (int ronda=1; ronda<=maxRondas; ronda++){
-            System.out.println("\n--------- RONDA " + ronda + " ---------");
+            System.out.println("\n Ronda " + ronda);
             System.out.println(batalla.estadoPersonajes());
             System.out.println("Enemigos:");
             for(int i=0;i<enemigos.size();i++){
