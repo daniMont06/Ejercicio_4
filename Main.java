@@ -6,7 +6,7 @@ public class Main{
     public static void main(String[] args){
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("=== Juego de Batalla (dos jugadores vs consola) ===\n");
+        System.out.println(" Juego de Batalla! Para esto necesitamos dos jugadores, un guerrero y explorador, listo para el combate! \n");
         //Nombres
         System.out.print("Nombre del Guerrero: ");
         String nombreGuerrero = scanner.nextLine();
