@@ -43,7 +43,7 @@ public class Jugador {
             this.puntos_vida -= cantidad;
             if (this.puntos_vida < 0) this.puntos_vida = 0;
         }
-    } // ← ← ← ESTA LLAVE FALTABA
+    } 
 
     public String opcion_menu_batalla(int opcion){
         Item nuevo;
@@ -78,22 +78,34 @@ public class Jugador {
         }
         Item i = item.get(index);
 
-        // Tu Item define: void efecto(Jugador, Enemigo)
+        
         i.efecto(this, objetivo);
 
         // Se consume siempre
         item.remove(index);
 
-        // Mensaje simple (puedes personalizar con i.getTipo() si quieres)
+        
         return nombre + " usó " + i.getNombre() + ".";
     }
 
     // Getters y Setters
-    public String getNombre(){ return nombre; }
-    public int getPuntosVida(){ return puntos_vida; }
-    public int getPoderAtaque(){ return poder_ataque; }
-    public ArrayList<Item> getItems(){ return item; }
+    public String getNombre(){ 
+        return nombre; 
+        }
+    public int getPuntosVida(){ 
+        return puntos_vida; 
+        }
+    public int getPoderAtaque(){ 
+        return poder_ataque; 
+        }
+    public ArrayList<Item> getItems(){ 
+        return item; 
+        }
 
-    public void setPuntosVida(int nuevosPuntosVida){ this.puntos_vida = nuevosPuntosVida; }
-    public void setPoderAtaque(int nuevoPoderAtaque){ this.poder_ataque = nuevoPoderAtaque; }
+    public void setPuntosVida(int nuevosPuntosVida){ 
+        this.puntos_vida = nuevosPuntosVida; 
+        }
+    public void setPoderAtaque(int nuevoPoderAtaque){ 
+    this.poder_ataque = nuevoPoderAtaque; 
+    }
 }
