@@ -34,7 +34,7 @@ public class Jugador {
         // los hijos deciden
     }
 
-    public void sumarVida(int cantidad){
+    public void sumarVida(int cantidad){ //Estos los añadí, porque si no no tenía cómo hacer lo de la suma de puntos
         if (cantidad > 0) this.puntos_vida += cantidad;
     }
 
@@ -68,7 +68,7 @@ public class Jugador {
         return "Se agregó " + nuevo.getNombre() + " al inventario.";
     }
 
-    protected boolean inventarioLleno(){
+    protected boolean inventarioLleno(){ //también lo añadí para ver lo del inventario de los personajes con los items
         return false;
     }
 

@@ -1,5 +1,5 @@
 
-import java.util.ArrayList; //Esto me costó mucho, por fis tenganme piedad :DD
+import java.util.ArrayList; //Esto me costó mucho, por fis tengan piedad :DD
 import java.util.List;
 import java.util.Scanner;
 
@@ -92,7 +92,7 @@ public class Main{
                     System.out.println(batalla.menuBatalla(actor, "PASAR", null, null));
                 }
 
-                //  respuesta del enemigo mua jajaja
+                //  respuesta del enemigo 
                 if (idxEnemigo>=0 && idxEnemigo<enemigos.size()){
                     Enemigo enemigoTurno = enemigos.get(idxEnemigo);
                     if (enemigoTurno.getPuntos_vida() > 0 && actor.getPuntosVida() > 0){

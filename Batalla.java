@@ -1,10 +1,8 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayList; //Esta clase tiene los métodos del diseño, pero les añadí más porque tengo que hacer varias validaciones
+import java.util.List; //No quite nada del diseño, pero añadí varios métodos, tengan piedad por favor :D
 import java.util.Random;
 
 public class Batalla {
-
-    
     private Guerrero guerrero;
     private Explorador explorador;
 
@@ -14,10 +12,10 @@ public class Batalla {
     // Guardamos solo los últimos 3 mensajes
     private final ArrayList<String> historial = new ArrayList<>();
 
-    private final Random rng = new Random();
+    private final Random rng = new Random(); //es el random para que generen a los enemigos de manera aleatoria
 
     //  Validar que haya 1 Guerrero y 1 Explorador por lo menos
-    public boolean validarJugadores(Guerrero g, Explorador e) {
+    public boolean validarJugadores(Guerrero g, Explorador e) { //Este lo añadí porque no tenía una validación
         if (g == null || e == null) return false;
         this.guerrero = g;
         this.explorador = e;
@@ -59,11 +57,10 @@ public class Batalla {
         if (explorador != null && explorador.getItems() != null) explorador.getItems().clear();
     }
 
-    //  Menú por turno del jugador 
-    // accion: "ATACAR", "USAR_ITEM", "PASAR"
+    //  Menú por turno del jugador, pregunta si quiere atacar tomar un item o pasar el turno
     public String menuBatalla(Jugador jugador, String accion, Integer indiceItem, Enemigo enemigoObjetivo) {
         if (jugador == null || accion == null) return "";
-        String accionMayus = accion.trim().toUpperCase();
+        String accionMayus = accion.trim().toUpperCase(); //Añadí este método para que escojan la acción el personaje
         String mensaje;
 
         if (accionMayus.equals("ATACAR")) {
@@ -89,8 +86,7 @@ public class Batalla {
         return mensaje;
     }
 
-    // Ejecuta ronsa en orden
-    // Orden: J1 vs E1, luego E1;  J2 vs E2, luego E2;  J1 vs E3, luego E3.
+    // Ejecuta ronda en orden
     // Pasa la acción de cada paso y el índice del enemigo objetivo (0,1,2).
     public List<String> ejecutarRondaSimple(
             String accionJ1_A, Integer itemJ1_A, int idxE1,
@@ -145,7 +141,7 @@ public class Batalla {
         return s;
     }
 
-    public String estadoPersonajes() {
+    public String estadoPersonajes() { //El estado de los personajes
     String s = "[Estado] ";
 
     if (guerrero != null) {
@@ -169,7 +165,7 @@ public class Batalla {
     return s;
 }
 
-    //  especial(): para activar la habilidad de un enemigo concreto 
+    //  este es el método que puse como especial() en el diseño pero lo cambie a activarHabilidad con los enemigos, así es más específico
     public String activarHabilidad(Enemigo e) {
         if (e == null) return "";
         String m = e.activar_Habilidad();   // cada enemigo define qué hace
@@ -192,40 +188,44 @@ public class Batalla {
     }
 
     
-    private void guardarHistorial(String s) {
-        if (s == null || s.isEmpty()) return;
-        historial.add(s);
-        // mantener solo los últimos 3 mensajes
-        while (historial.size() > 3) {
+    private void guardarHistorial(String s) { //Guarda el historial de las rondas
+    if (s == null || s.isEmpty()) return;
+    historial.add(s);
+
+    // Dejar solo los últimos 3 mensajes
+    if (historial.size() > 3) {
+        int quitar = historial.size() - 3;
+        for (int i = 0; i < quitar; i++) {
             historial.remove(0);
+            }
         }
     }
 
-    private boolean estadoListo() {
+    private boolean estadoListo() { //Que el juego este listo
         return guerrero != null && explorador != null && enemigos.size() == 3;
     }
 
-    private Enemigo enemigoVivo(int idx) {
+    private Enemigo enemigoVivo(int idx) { //Mira si se mueren los enemigos, así se acaba el juego o se va el enemigo
         if (idx < 0 || idx >= enemigos.size()) return null;
         Enemigo e = enemigos.get(idx);
         if (e.getPuntos_vida() <= 0) return null;
         return e;
     }
 
-    private boolean todosEnemigosMuertos() {
+    private boolean todosEnemigosMuertos() { //Les quita los puntos de vida si se mueren y se acaba el juego
         for (Enemigo e : enemigos) {
             if (e.getPuntos_vida() > 0) return false;
         }
         return true;
     }
 
-    private boolean hayJugadoresVivos() {
+    private boolean hayJugadoresVivos() { //Valida si todavía hay jugadores vivos para seguir con la ronda
         boolean gVivo = guerrero != null && guerrero.getPuntosVida() > 0;
         boolean eVivo = explorador != null && explorador.getPuntosVida() > 0;
         return gVivo || eVivo; // sigue si al menos uno vive
     }
 
-    private boolean termino(ArrayList<String> mensajes) {
+    private boolean termino(ArrayList<String> mensajes) { //Es el final, dice si ganamos nosotros o perdimos
         if (todosEnemigosMuertos()) {
             String s = "¡Victoria! Todos los enemigos han caído.";
             mensajes.add(s); guardarHistorial(s);
@@ -233,7 +233,7 @@ public class Batalla {
             return true;
         }
         if (!hayJugadoresVivos()) {
-            String s = "Derrota… los jugadores han caído.";
+            String s = "Noooooo los jugadores han caído.";
             mensajes.add(s); guardarHistorial(s);
             limpiarInventarios();
             return true;

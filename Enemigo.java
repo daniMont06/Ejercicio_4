@@ -45,11 +45,13 @@ public class Enemigo {
         }
     }
 
-    public void subir_ataque(int cantidad){
+    public void subir_ataque(int cantidad){ // lo añadí para que suba el ataque
         if (cantidad > 0) this.ataque += cantidad;
     }
 
-    public boolean esBoss(){ return false; }
+    public boolean esBoss(){ 
+        return false; 
+        } // valida si hay es jefe, esta falso porque pues, esta es la clase padre, pero en la hija se cambia a true
 
     public String getNombre(){ 
         return nombre; }

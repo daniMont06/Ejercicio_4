@@ -2,7 +2,7 @@ import java.util.Random;
 public class HabilidadEspecial{
     private String nombre;
     private int ataque;        
-    private boolean usada;    
+    private boolean usada; //Este es un atributo que añadí para ver si el enemigo ya la usó o no   
 
     private Random rng = new Random();
 
