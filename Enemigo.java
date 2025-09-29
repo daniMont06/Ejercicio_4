@@ -1,4 +1,5 @@
-public class Enemigo{
+public class Enemigo {
+
     protected String nombre;
     protected HabilidadEspecial habilidad_especial;
     protected int puntos_vida;
@@ -8,33 +9,28 @@ public class Enemigo{
         this.nombre = nombre;
         this.puntos_vida = puntos_vida;
         this.ataque = ataque;
-        this.habilidad_especial = habilidad_especial; 
+        this.habilidad_especial = habilidad_especial;
     }
 
     public String activar_Habilidad(){
         if (habilidad_especial == null) return "";
         if (habilidad_especial.yaFueUsada()) return "";
-
         if (habilidad_especial.activar()){
             habilidad_especial.uso(this);
-            return nombre + " activó " + habilidad_especial.getNombre() +
-                " (+" + habilidad_especial.getAtaque() + " ATK).";
+            return nombre + " activó " + habilidad_especial.getNombre() + " (+" + habilidad_especial.getAtaque() + " Ataque).";
         }
-        return ""; // sin mensaje cuando no se activa
+        return "";
     }
 
-    public String atacar(Jugador jugador){ //Sé que se ve raro porque no tiene atributo jugador pero eso lo vemos en la clase batalla jajaja
-        if (jugador == null) return nombre + " no tiene objetivo."; //Confíen en el proceso
+    public String atacar(Jugador jugador){
+        if (jugador == null) return nombre + " no tiene objetivo.";
         if (ataque <= 0) return nombre + " intentó atacar pero no hizo daño.";
-
         jugador.restarVida(ataque);
         return nombre + " atacó a " + jugador.getNombre() + " e infligió " + ataque + " de daño.";
     }
 
     public String morir(){
-        if (puntos_vida <= 0){
-            return nombre + " ha muerto.";
-        }
+        if (puntos_vida <= 0) return nombre + " ha muerto.";
         return "";
     }
 
@@ -53,21 +49,14 @@ public class Enemigo{
         if (cantidad > 0) this.ataque += cantidad;
     }
 
-    public boolean esBoss(){  //No comienza en boss, pero lo voy a sobre escribir
-    return false; 
-}
+    public boolean esBoss(){ return false; }
 
     public String getNombre(){ 
-        return nombre; 
-        }
-    public int getPuntos_vida(){ r
-    eturn puntos_vida; 
-    }
+        return nombre; }
+    public int getPuntos_vida(){ 
+        return puntos_vida; }
     public int getAtaque(){ 
-        return ataque; 
-        }
+        return ataque; }
     public HabilidadEspecial getHabilidad(){ 
-        return habilidad_especial; 
-        }
-
+        return habilidad_especial; }
 }
